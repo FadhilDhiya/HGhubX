@@ -17,7 +17,9 @@
 //!   安卓上只有 VPN/TUN 模式（VpnService 抓全流量）才有效。
 //!
 //! 排查手段：环境变量 `HGHUB_PROXY=http://127.0.0.1:7897` 可强制指定代理，
-//! `net_diag` 命令会输出 DNS/HTTP/环境变量快照。
+//! 进程里的 `HTTP_PROXY`/`HTTPS_PROXY`/`ALL_PROXY` 由 reqwest `system-proxy` 读取；
+//! Linux 桌面还会读 GNOME 的 `gsettings` 手动代理（http/socks），无需用户手动设置。
+//! `net_diag` 命令会输出 DNS/HTTP/环境变量与探测到的代理（脱敏）快照。
 
 use crate::network_policy;
 use base64::engine::general_purpose::STANDARD as B64;
@@ -120,6 +122,83 @@ fn proxy_override() -> Option<String> {
         .filter(|s| !s.is_empty())
 }
 
+/// 进程环境变量里有没有代理（reqwest 的 `system-proxy` 会自己读这些，不重复应用）。
+fn env_proxy_set() -> bool {
+    ["HTTP_PROXY", "HTTPS_PROXY", "ALL_PROXY", "http_proxy", "https_proxy", "all_proxy"]
+        .iter()
+        .any(|key| std::env::var(key).ok().is_some_and(|v| !v.trim().is_empty()))
+}
+
+/// 应用层最终采用的显式代理（不含环境变量——那部分交给 reqwest）。
+/// 优先级：`HGHUB_PROXY` > 进程环境变量（reqwest 处理）> Linux GNOME gsettings。
+fn detected_proxy() -> Option<String> {
+    if let Some(p) = proxy_override() {
+        return Some(p);
+    }
+    if env_proxy_set() {
+        return None;
+    }
+    gnome_proxy()
+}
+
+#[cfg(target_os = "linux")]
+fn unquote(s: &str) -> String {
+    let s = s.trim();
+    if s.len() >= 2 && s.starts_with('\'') && s.ends_with('\'') {
+        s[1..s.len() - 1].to_string()
+    } else {
+        s.to_string()
+    }
+}
+
+/// 读 GNOME 系统代理配置（gsettings）。gsettings 不存在 / schema 缺失时返回 None。
+#[cfg(target_os = "linux")]
+fn gsettings_get(schema: &str, key: &str) -> Option<String> {
+    let out = std::process::Command::new("gsettings")
+        .args(["get", schema, key])
+        .output()
+        .ok()?;
+    if !out.status.success() {
+        return None;
+    }
+    Some(unquote(&String::from_utf8_lossy(&out.stdout)))
+}
+
+#[cfg(target_os = "linux")]
+fn format_proxy_url(scheme: &str, host: &str, port: &str) -> String {
+    let host = if host.contains(':') && !host.starts_with('[') {
+        format!("[{host}]")
+    } else {
+        host.to_string()
+    };
+    format!("{scheme}://{host}:{port}")
+}
+
+/// Linux 桌面（GNOME）的固定手动代理：`mode=manual` 时取 http，为空再试 socks。
+/// PAC（mode=auto）不支持，返回 None。
+#[cfg(target_os = "linux")]
+fn gnome_proxy() -> Option<String> {
+    if gsettings_get("org.gnome.system.proxy", "mode").as_deref() != Some("manual") {
+        return None;
+    }
+    let http_host = gsettings_get("org.gnome.system.proxy.http", "host").unwrap_or_default();
+    let http_port = gsettings_get("org.gnome.system.proxy.http", "port").unwrap_or_default();
+    if !http_host.is_empty() && !http_port.is_empty() {
+        return Some(format_proxy_url("http", &http_host, &http_port));
+    }
+    let socks_host = gsettings_get("org.gnome.system.proxy.socks", "host").unwrap_or_default();
+    let socks_port = gsettings_get("org.gnome.system.proxy.socks", "port").unwrap_or_default();
+    if !socks_host.is_empty() && !socks_port.is_empty() {
+        return Some(format_proxy_url("socks5", &socks_host, &socks_port));
+    }
+    None
+}
+
+#[cfg(not(target_os = "linux"))]
+fn gnome_proxy() -> Option<String> {
+    None
+}
+
 /// 按**当前**系统代理设置新建一个客户端。
 ///
 /// 注意：reqwest 的 `system-proxy` 只在构建时读一次注册表 / 环境变量。代理软件被关掉后，
@@ -138,9 +217,9 @@ fn build_client(host: &str, addrs: &[SocketAddr]) -> Result<reqwest::Client, Str
     if !addrs.is_empty() {
         builder = builder.resolve_to_addrs(host, addrs);
     }
-    if let Some(p) = proxy_override() {
+    if let Some(p) = detected_proxy() {
         // 错误信息不能含原始代理 URL（其中可能有用户名/密码）。
-        let proxy = reqwest::Proxy::all(&p).map_err(|_| "HGHUB_PROXY 配置无效（已隐藏原始值）")?;
+        let proxy = reqwest::Proxy::all(&p).map_err(|_| "代理配置无效（已隐藏原始值）")?;
         builder = builder.proxy(proxy);
     }
     builder
@@ -639,6 +718,7 @@ pub async fn diagnose() -> Value {
             "ALL_PROXY": std::env::var("ALL_PROXY").ok().map(|p| redact_proxy(&p)),
             "NO_PROXY": std::env::var("NO_PROXY").ok().map(|_| "[已配置，列表已隐藏]"),
             "HGHUB_PROXY": proxy_override().map(|p| redact_proxy(&p)),
+            "GNOME_PROXY": gnome_proxy().map(|p| redact_proxy(&p)),
         },
         "runtime": {
             "os": std::env::consts::OS,
