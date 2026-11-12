@@ -8,6 +8,7 @@ import PlayerControls from "../player/PlayerControls";
 import PlaybackLock from "../player/PlaybackLock";
 import { ArticlePanel, CommentsPanel, EpisodesPanel } from "../components/Panels";
 import { RowCard } from "../components/cards";
+import { TranslatedTitle } from "../contentLanguage";
 import { setBackHandler } from "../back";
 import { copyText } from "../clipboard";
 import { tracePlayback } from "../player/diagnostics";
@@ -1082,7 +1083,7 @@ export default function Feed({ videoIds, startIndex = 0, title = "", mode, kind 
                   )}
                 </div>
 
-                <p className="mt-1 text-[13.5px] leading-snug hg-ink-2 hg-ov-shadow clamp-2">{meta.title}</p>
+                <TranslatedTitle title={meta.title} id={curId} className="mt-1 text-[13.5px] leading-snug hg-ink-2 hg-ov-shadow clamp-2" />
 
                 {/* 描述（单行，点开展开） */}
                 <button onClick={() => setDescOpen((v) => !v)} className="mt-1 text-left w-full pressable group">
@@ -1100,7 +1101,7 @@ export default function Feed({ videoIds, startIndex = 0, title = "", mode, kind 
               {!fs && !clean && !isDesktop && (
                 <div className="absolute inset-x-0 z-20" style={{ bottom: `calc(var(--sab, 0px) + ${bottomInset}px)` }}>
                   <div className="relative px-4 pb-2 flex items-center gap-2">
-                    <p className="flex-1 min-w-0 text-[14px] font-semibold leading-snug hg-ink-2 hg-ov-shadow-strong clamp-2">{meta.title}</p>
+                    <TranslatedTitle title={meta.title} id={curId} className="flex-1 min-w-0 text-[14px] font-semibold leading-snug hg-ink-2 hg-ov-shadow-strong clamp-2" />
                   </div>
                   <div className="relative pt-1.5 pb-2.5">
                     <button onClick={() => setPanel("detail")}
@@ -1339,7 +1340,7 @@ export default function Feed({ videoIds, startIndex = 0, title = "", mode, kind 
                         <Img src={meta.cover} />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className="text-[13.5px] font-bold text-on leading-snug clamp-2">{meta.title}</div>
+                        <TranslatedTitle title={meta.title} id={curId} className="text-[13.5px] font-bold text-on leading-snug" showOriginal />
                         <div className="flex items-center gap-2 mt-1.5">
                           {!!meta.score && <span className="text-[12px] font-bold text-amber">{meta.score.toFixed(1)}  pts</span>}
                           {episodes.length > 0 && <span className="text-[10.5px] text-mut">{episodes.length} episodes</span>}

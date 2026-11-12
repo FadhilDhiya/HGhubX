@@ -5,6 +5,7 @@ import { useStore } from "../store";
 import { Masonry, RankRow } from "../components/cards";
 import { Empty } from "../components/ui";
 import { IBack, IClose, IFireF, IRefresh, ISearch, ITrophy } from "../icons";
+import { TagText } from "../contentLanguage";
 
 const HOT_TAGS = ["都市", "逆袭", "古风", "系统", "后宫", "校园", "仙侠", "职场", "大男主", "御姐", "脑洞", "奇幻"];
 
@@ -136,7 +137,7 @@ export default function Search({ active, wide }: { active: boolean; wide: boolea
               <div className="flex flex-wrap gap-2 mt-3">
                 {HOT_TAGS.map((t) => (
                   <button key={t} onClick={() => { setQ(t); submit(t); }}
-                    className="px-3 h-7 rounded-(--r-ctl) bg-s3 text-[12px] text-on/85 pressable">{t}</button>
+                    className="px-3 h-7 rounded-(--r-ctl) bg-s3 text-[12px] text-on/85 pressable"><TagText text={t} /></button>
                 ))}
               </div>
             </div>

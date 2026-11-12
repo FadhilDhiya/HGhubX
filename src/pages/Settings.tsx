@@ -4,6 +4,7 @@ import type { UpdateInfo } from "../types";
 import { APP_NAME } from "../branding";
 import { useStore } from "../store";
 import { Modal, Toggle } from "../components/ui";
+import { useContentPreferences, updateContentPreferences } from "../contentLanguage";
 import GateDialog from "../components/GateDialog";
 import { copyPlaybackLog, initPlaybackLog, setPlaybackLog, tracePlayback, usePlaybackLog } from "../player/diagnostics";
 import { formatNetDiag, shortVerdict } from "../netDiagReport";
@@ -14,6 +15,7 @@ import { IBack, IBoltF, IBroom, IChevR, IHeart, IInfo, ILink, ILockF, IMoon, IRe
    入口：Windows 侧栏「Settings」、Android「我的」右上角齿轮 */
 export default function Settings({ onBack, wide }: { onBack: () => void; wide: boolean }) {
   const { theme, setTheme, favs, history, muteOnStartup, setMuteOnStartup, swipeEp, setSwipeEp, preferHevc, setPreferHevc, strictSecurity, strictSecurityReady, securityPending, cliRelaxed, setStrictSecurity, toast, gate } = useStore();
+  const contentPrefs = useContentPreferences();
   const [about, setAbout] = useState(false);
   const [clearOpen, setClearOpen] = useState(false);
   const [clearing, setClearing] = useState(false);
@@ -98,6 +100,24 @@ export default function Settings({ onBack, wide }: { onBack: () => void; wide: b
                 <div className="text-[10.5px] text-mut">Fluent-inspired dark appearance</div>
               </div>
               <Toggle on={theme === "dark"} onChange={(on) => setTheme(on ? "dark" : "light")} label="Dark Appearance" />
+            </div>
+          </Section>
+
+          <Section title="Content Language">
+            <div className="flex items-center gap-3 px-3.5 py-3">
+              <div className="flex-1"><div className="text-[12.5px] text-on">English genre tags</div>
+                <div className="text-[10.5px] text-mut">Show translated tag labels. Chinese API values and searches remain unchanged. Unknown tags stay Chinese.</div></div>
+              <Toggle on={contentPrefs.englishTags} onChange={(englishTags) => updateContentPreferences({ englishTags })} label="English genre tags" />
+            </div>
+            <div className="flex items-center gap-3 px-3.5 py-3">
+              <div className="flex-1"><div className="text-[12.5px] text-on">Translate video titles online</div>
+                <div className="text-[10.5px] text-mut">Optional machine translation via MyMemory. Only visible video titles are sent to a third-party service, then cached locally (limit 3,000 characters/day). Requires internet.</div></div>
+              <Toggle on={contentPrefs.translateTitles} onChange={(translateTitles) => updateContentPreferences({ translateTitles })} label="Translate video titles online" />
+            </div>
+            <div className="flex items-center gap-3 px-3.5 py-3">
+              <div className="flex-1"><div className="text-[12.5px] text-on">Show original Chinese title in details</div>
+                <div className="text-[10.5px] text-mut">Preserve the Chinese original below translated titles on the video details panel.</div></div>
+              <Toggle on={contentPrefs.showOriginal} onChange={(showOriginal) => updateContentPreferences({ showOriginal })} label="Show original title" />
             </div>
           </Section>
 

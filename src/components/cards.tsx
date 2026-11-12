@@ -3,6 +3,7 @@ import { cover, fmt } from "../api";
 import type { VideoCard } from "../types";
 import { IHeartF, IPlayF } from "../icons";
 import { Img } from "./ui";
+import { TranslatedTitle, TagList } from "../contentLanguage";
 
 /* ——— 瀑布流卡片 ——— */
 export function WaterfallCard({ v, onOpen }: { v: VideoCard; onOpen: () => void }) {
@@ -20,7 +21,7 @@ export function WaterfallCard({ v, onOpen }: { v: VideoCard; onOpen: () => void 
         <IPlayF size={9} />{fmt(v.hot)}
       </span>
       <div className="absolute inset-x-0 bottom-0 p-2">
-        <div className="text-[11.5px] font-medium text-white leading-snug clamp-2 tsh">{v.title}</div>
+        <TranslatedTitle id={v.id} title={v.title} className="text-[11.5px] font-medium text-white leading-snug clamp-2 tsh" />
         <div className="flex items-center justify-between mt-1">
           <span className="text-[9.5px] text-white/65 truncate max-w-[60%]">{v.author?.name || "Unknown creator"}</span>
           <span className="flex items-center gap-0.5 text-[9.5px] text-white/75"><IHeartF size={10} className="text-white/70" />{fmt(v.like_count)}</span>
@@ -61,8 +62,8 @@ export function RowCard({ v, onOpen }: { v: VideoCard; onOpen: () => void }) {
         </span>
         <span className="absolute bottom-1.5 right-1.5 flex items-center gap-0.5 text-[9px] font-semibold text-white/90 tsh"><IPlayF size={9} />{fmt(v.hot)}</span>
       </div>
-      <div className="mt-1.5 text-[11.5px] font-medium text-on clamp-1 leading-tight">{v.title}</div>
-      <div className="text-[10px] text-mut clamp-1 mt-0.5">{v.tags?.slice(0, 2).join(" · ")}</div>
+      <TranslatedTitle id={v.id} title={v.title} className="mt-1.5 text-[11.5px] font-medium text-on clamp-1 leading-tight" />
+      <div className="text-[10px] text-mut clamp-1 mt-0.5"><TagList tags={v.tags?.slice(0, 2)} /></div>
     </button>
   );
 }
@@ -82,9 +83,9 @@ export function RankRow({ item, onOpen, metricMax }: {
         <Img src={item.cover} />
       </div>
       <div className="flex-1 min-w-0">
-        <div className="text-[12.5px] font-medium text-on clamp-2 leading-snug">{item.title}</div>
+        <TranslatedTitle id={item.video_id} title={item.title} className="text-[12.5px] font-medium text-on clamp-2 leading-snug" />
         <div className="flex items-center gap-2 mt-1.5">
-          <span className="text-[10px] text-mut truncate">{item.tags?.slice(0, 2).join(" · ")}</span>
+          <span className="text-[10px] text-mut truncate"><TagList tags={item.tags?.slice(0, 2)} /></span>
           <span className="flex items-center gap-0.5 text-[10px] font-bold text-primary">{fmt(item.metric_value)}</span>
         </div>
         <div className="mt-1.5 h-[3px] rounded-full bg-s4 overflow-hidden">

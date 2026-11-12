@@ -6,6 +6,7 @@ import { Masonry } from "../components/cards";
 import { InplaceSearch } from "../components/InplaceSearch";
 import { Empty, Img } from "../components/ui";
 import { IBack, IGrid, IGlobe, IRefresh, ISearch } from "../icons";
+import { TagText } from "../contentLanguage";
 
 const TopicIcon = IGrid;
 const TagIcon = IGlobe;
@@ -207,14 +208,14 @@ export function TagsPage({ onBack, wide }: { onBack: () => void; wide: boolean }
           groups.map((g) => (
             <section key={g.name} className="mb-5 a-rise">
               <div className="flex items-center gap-2 mb-2.5">
-                <span className="text-[13.5px] font-bold text-on">{g.name}</span>
+                <span className="text-[13.5px] font-bold text-on"><TagText text={g.name} /></span>
                 <span className="text-[10.5px] text-dim">{g.tags?.length || 0}  groups</span>
               </div>
               <div className="flex flex-wrap gap-2">
                 {g.tags.map((t) => (
                   <button key={t.id} onClick={() => push({ kind: "tag", tag: t.name, name: t.name })}
                     className="px-3 h-8 rounded-(--r-ctl) bg-s3 text-[12px] text-on/85 pressable flex items-center gap-1">
-                    {t.name}
+                    <TagText text={t.name} />
                     {!!t.hot_score && <span className="text-[9.5px] text-dim">{fmt(t.hot_score)}</span>}
                   </button>
                 ))}
@@ -282,7 +283,7 @@ export function TagPage({ tag, name, onBack, wide }: { tag: string; name: string
       <div className="shrink-0 bg-s1" style={{ paddingTop: "var(--sat, 0px)" }}>
         <div className="px-3 pt-2 pb-3 flex items-center gap-2.5">
           <button onClick={onBack} className="w-10 h-10 rounded-full flex items-center justify-center text-on hover:bg-s3 pressable"><IBack size={20} /></button>
-          <span className="text-[16px] font-bold text-on">{name}</span>
+          <span className="text-[16px] font-bold text-on"><TagText text={name} /></span>
           <span className="text-[10.5px] text-mut">{items.length}  dramas</span>
           <button onClick={() => setSearching(true)} aria-label="Search dramas" className="ml-auto w-9 h-9 rounded-full flex items-center justify-center text-on hover:bg-s3 pressable"><ISearch size={19} /></button>
         </div>

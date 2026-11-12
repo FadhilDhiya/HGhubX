@@ -4,6 +4,7 @@ import { APP_NAME } from "../branding";
 import type { Detail } from "../types";
 import { useStore } from "../store";
 import { Avatar, Empty, Img } from "../components/ui";
+import { TranslatedTitle } from "../contentLanguage";
 import { IChevR, IClock, IHeart, ILogout, ISettings, IStar, IUser, IUserF } from "../icons";
 
 /* My Library：结构固定（资料卡 + My Favorites / Watch History）。
@@ -134,7 +135,7 @@ export default function Profile({ wide }: { wide: boolean }) {
                     </div>
                   )}
                   <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 to-transparent p-1.5">
-                    <div className="text-[10.5px] text-white clamp-2 leading-tight">{c.title}</div>
+                    <TranslatedTitle id={c.id} title={c.title} className="text-[10.5px] text-white clamp-2 leading-tight" />
                   </div>
                 </button>
                 );
