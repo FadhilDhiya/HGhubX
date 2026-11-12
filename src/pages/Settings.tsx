@@ -10,8 +10,8 @@ import { formatNetDiag, shortVerdict } from "../netDiagReport";
 import { copyText } from "../clipboard";
 import { IBack, IBoltF, IBroom, IChevR, IHeart, IInfo, ILink, ILockF, IMoon, IRefresh, ISettings, ISun, IVolMute, IList, Logo } from "../icons";
 
-/* 独立设置页：接入地址 / 外观 / 播放 / 本地数据 / 清理缓存 / 网络诊断 / 关于
-   入口：Windows 侧栏「设置」、Android「我的」右上角齿轮 */
+/* 独立Settings页：Server Address / Appearance / Playback / Local Data / Clear cache / Network Diagnostics / 关于
+   入口：Windows 侧栏「Settings」、Android「我的」右上角齿轮 */
 export default function Settings({ onBack, wide }: { onBack: () => void; wide: boolean }) {
   const { theme, setTheme, favs, history, muteOnStartup, setMuteOnStartup, swipeEp, setSwipeEp, preferHevc, setPreferHevc, strictSecurity, strictSecurityReady, securityPending, cliRelaxed, setStrictSecurity, toast, gate } = useStore();
   const [about, setAbout] = useState(false);
@@ -37,9 +37,9 @@ export default function Settings({ onBack, wide }: { onBack: () => void; wide: b
     try {
       const info = await api.checkUpdate();
       if (info.has_update) setUpdate(info);
-      else toast(`已是最新版本 v${info.current}`, "ok");
+      else toast(`Already up to date v${info.current}`, "ok");
     } catch (e) {
-      toast((e as Error).message || "检查更新失败", "info");
+      toast((e as Error).message || "Update check failed", "info");
     } finally {
       setChecking(false);
     }
@@ -51,12 +51,12 @@ export default function Settings({ onBack, wide }: { onBack: () => void; wide: b
    */
   const doUpdate = async () => {
     if (!update) return;
-    setUpdating("打开中…");
+    setUpdating("Opening…");
     try {
       await api.openUrl(update.url);
     } catch (e) {
       await copyText(update.url)
-        .then(() => toast("下载地址已复制，可在浏览器粘贴打开", "ok"))
+        .then(() => toast("Download link copied; paste it into a browser", "ok"))
         .catch(() => toast((e as Error).message || "打开失败", "info"));
     } finally {
       setUpdating("");
@@ -75,14 +75,14 @@ export default function Settings({ onBack, wide }: { onBack: () => void; wide: b
       <div className="shrink-0 relative overflow-hidden bg-s1" style={{ paddingTop: "var(--sat, 0px)" }}>
         <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(90% 120% at 100% 0%, var(--p-pc) 0%, transparent 60%)", opacity: 0.32 }} />
         <div className="relative px-3 pt-2 pb-4">
-          <button onClick={onBack} aria-label="返回" className="w-10 h-10 rounded-full flex items-center justify-center text-on hover:bg-s3 pressable"><IBack size={20} /></button>
+          <button onClick={onBack} aria-label="Back" className="w-10 h-10 rounded-full flex items-center justify-center text-on hover:bg-s3 pressable"><IBack size={20} /></button>
           <div className="px-2 mt-1 flex items-end justify-between">
             <div>
               <div className="flex items-center gap-2">
                 <span className="w-9 h-9 rounded-(--r-sm) bg-pc text-on-pc flex items-center justify-center"><ISettings size={20} strokeWidth={1.7} /></span>
-                <span className="text-[24px] font-bold tracking-wide text-on">设置</span>
+                <span className="text-[24px] font-bold tracking-wide text-on">Settings</span>
               </div>
-              <div className="text-[11px] text-mut mt-1">外观 · 播放 · 本地数据 · 诊断</div>
+              <div className="text-[11px] text-mut mt-1">Appearance · Playback · Local data · Diagnostics</div>
             </div>
           </div>
         </div>
@@ -90,79 +90,79 @@ export default function Settings({ onBack, wide }: { onBack: () => void; wide: b
 
       <div className="flex-1 scroll-y px-4 pt-1 pb-10">
         <div className={wide ? "max-w-[720px] mx-auto" : ""}>
-          <Section title="外观">
+          <Section title="Appearance">
             <div className="flex items-center gap-3 px-3.5 py-3">
               <span className="w-8 h-8 rounded-full bg-s3 flex items-center justify-center text-primary">{theme === "dark" ? <IMoon size={16} /> : <ISun size={16} />}</span>
               <div className="flex-1">
-                <div className="text-[12.5px] text-on">深色外观</div>
-                <div className="text-[10.5px] text-mut">跟随设计稿的 Fluent 深色</div>
+                <div className="text-[12.5px] text-on">Dark Appearance</div>
+                <div className="text-[10.5px] text-mut">Fluent-inspired dark appearance</div>
               </div>
-              <Toggle on={theme === "dark"} onChange={(on) => setTheme(on ? "dark" : "light")} label="深色外观" />
+              <Toggle on={theme === "dark"} onChange={(on) => setTheme(on ? "dark" : "light")} label="Dark Appearance" />
             </div>
           </Section>
 
-          <Section title="播放">
+          <Section title="Playback">
             <div className="flex items-center gap-3 px-3.5 py-3">
               <span className="w-8 h-8 rounded-full bg-s3 flex items-center justify-center text-primary"><IVolMute size={16} /></span>
               <div className="flex-1 min-w-0">
-                <div className="text-[12.5px] text-on">启动时静音</div>
-                <div className="text-[10.5px] text-mut">默认开启，每次启动均静音；关闭后记住上次静音状态。下次启动生效。</div>
+                <div className="text-[12.5px] text-on">Mute on startup</div>
+                <div className="text-[10.5px] text-mut">Enabled by default. Each launch starts muted; if disabled, the last mute state is remembered. Takes effect on next launch.</div>
               </div>
-              <Toggle on={muteOnStartup} onChange={setMuteOnStartup} label="启动时静音" />
+              <Toggle on={muteOnStartup} onChange={setMuteOnStartup} label="Mute on startup" />
             </div>
             <div className="flex items-center gap-3 px-3.5 py-3">
               <span className="w-8 h-8 rounded-full bg-s3 flex items-center justify-center text-primary"><IList size={16} /></span>
               <div className="flex-1 min-w-0">
-                <div className="text-[12.5px] text-on">上下划切集</div>
-                <div className="text-[10.5px] text-mut">多集短剧上下滑换集，划到头再换下一部</div>
+                <div className="text-[12.5px] text-on">Swipe between episodes</div>
+                <div className="text-[10.5px] text-mut">Swipe up or down to switch episodes; move to the next series at the end.</div>
               </div>
-              <Toggle on={swipeEp} onChange={setSwipeEp} label="上下划切集" />
+              <Toggle on={swipeEp} onChange={setSwipeEp} label="Swipe between episodes" />
             </div>
             <div className="flex items-center gap-3 px-3.5 py-3">
               <span className="w-8 h-8 rounded-full bg-s3 flex items-center justify-center text-primary"><IBoltF size={16} /></span>
               <div className="flex-1 min-w-0">
-                <div className="text-[12.5px] text-on">优先高清</div>
-                <div className="text-[10.5px] text-mut">有高清就用 HEVC，播不了会自动切回标准</div>
+                <div className="text-[12.5px] text-on">Prefer HD quality</div>
+                <div className="text-[10.5px] text-mut">Prefer HEVC when available; fall back to standard quality if playback fails.</div>
               </div>
-              <Toggle on={preferHevc} onChange={setPreferHevc} label="优先高清" />
+              <Toggle on={preferHevc} onChange={setPreferHevc} label="Prefer HD quality" />
             </div>
           </Section>
 
-          <Section title="本地数据">
+          <Section title="Local Data">
             <div className="flex items-center gap-3 px-3.5 py-3">
               <span className="w-8 h-8 rounded-full bg-s3 flex items-center justify-center text-primary"><IHeart size={16} /></span>
               <div className="flex-1">
-                <div className="text-[12.5px] text-on">本地喜欢</div>
-                <div className="text-[10.5px] text-mut">{favs.length} 部收藏 · {history.length} 条观看记录</div>
+                <div className="text-[12.5px] text-on">Local favorites</div>
+                <div className="text-[10.5px] text-mut">{favs.length}  favorites · {history.length}  history entries</div>
               </div>
             </div>
             <button onClick={() => setClearOpen(true)} className="w-full flex items-center gap-3 px-3.5 py-3 text-left pressable">
               <span className="w-8 h-8 rounded-full bg-s3 flex items-center justify-center text-primary"><IBroom size={16} /></span>
               <div className="flex-1">
-                <div className="text-[12.5px] text-on">清理缓存</div>
-                <div className="text-[10.5px] text-mut">封面 / 播放缓存与本地记录</div>
+                <div className="text-[12.5px] text-on">Clear cache</div>
+                <div className="text-[10.5px] text-mut">Cover / playback cache and local records</div>
               </div>
               <IChevR size={15} className="text-mut" />
             </button>
           </Section>
 
-          <Section title="网络">
+          <Section title="Network">
             <button onClick={() => setLineOpen(true)} className="w-full flex items-center gap-3 px-3.5 py-3 text-left pressable">
               <span className="w-8 h-8 rounded-full bg-s3 flex items-center justify-center text-primary"><IBoltF size={16} /></span>
               <div className="flex-1 min-w-0">
-                <div className="text-[12.5px] text-on">接入地址</div>
-                <div className="text-[10.5px] text-mut truncate">{lineBase ? hostOf(lineBase) : "未设置"}</div>
+                <div className="text-[12.5px] text-on">Server Address</div>
+                <div className="text-[10.5px] text-mut truncate">{lineBase ? hostOf(lineBase) : "Not configured"}</div>
               </div>
               <IChevR size={15} className="text-mut" />
             </button>
             <div className="flex items-center gap-3 px-3.5 py-3">
               <span className="w-8 h-8 rounded-full bg-s3 flex items-center justify-center text-primary"><ILockF size={15} /></span>
               <div className="flex-1 min-w-0">
-                <div className="text-[12.5px] text-on">严格安全模式</div>
+                <div className="text-[12.5px] text-on">Strict Security Mode</div>
                 <div className="text-[10.5px] text-mut">
                   {cliRelaxed
-                    ? "已由启动参数 --no-strict 切换为兼容模式；可手动重新开启"
-                    : "默认开启，防上游投毒与内网探测；若导致正文或特殊代理异常可关闭（或用 --no-strict 启动）"}
+                    ? "Compatibility mode enabled using --no-strict. You can re-enable strict security."
+                    : "On by default to guard against unsafe content and local-network probing. Disable only if a trusted proxy requires compatibility mode."}
                 </div>
               </div>
               <Toggle
@@ -170,18 +170,18 @@ export default function Settings({ onBack, wide }: { onBack: () => void; wide: b
                 disabled={!strictSecurityReady || securityPending}
                 onChange={(on) => {
                   void setStrictSecurity(on).then(() => {
-                    toast(on ? "已开启严格安全模式" : "已切换为兼容模式（关闭激进清洗与守卫）", "info");
-                  }).catch(() => toast("安全设置保存失败，已保持原模式", "info"));
+                    toast(on ? "Strict security enabled" : "Switched to compatibility mode (reduced filtering and safeguards).", "info");
+                  }).catch(() => toast("Unable to save security setting; previous mode retained", "info"));
                 }}
-                label="严格安全模式"
+                label="Strict Security Mode"
               />
             </div>
-            {/* 打不开时先点这里：把 DNS / 代理 / HTTP 结果复制给维护者 */}
+            {/* 打不开时先点这里：把 DNS / 代理 / HTTP 结果Copy给维护者 */}
             <button disabled={diagnosing} onClick={async () => {
               setDiagnosing(true);
               try {
                 const diag = await api.netDiag();
-                // 落盘走原始 JSON（便于脚本统计），复制给对方的是分段可读报告。
+                // 落盘走原始 JSON（便于脚本统计），Copy给对方的是分段可读报告。
                 logLine(`[net_diag] ${JSON.stringify(diag)}`);
                 const http = (diag.http ?? {}) as { ms?: number; status?: number };
                 const dns = (diag.dns ?? {}) as { count?: number; has_fake_ip?: boolean };
@@ -195,73 +195,73 @@ export default function Settings({ onBack, wide }: { onBack: () => void; wide: b
                 const report = formatNetDiag(diag);
                 try {
                   await copyText(report);
-                  toast(`诊断已复制 · ${shortVerdict(diag)}`, "ok");
+                  toast(`DiagnosticsCopied · ${shortVerdict(diag)}`, "ok");
                 } catch {
                   setDiagReport(report);
-                  toast("诊断已完成，复制失败，可在报告中重试", "info");
+                  toast("Diagnostics finished; copy failed. Try again in the report.", "info");
                 }
               } catch (e) {
-                const detail = e instanceof Error ? e.message : typeof e === "string" ? e : "请稍后重试";
-                toast(`网络诊断失败：${detail}`, "info");
+                const detail = e instanceof Error ? e.message : typeof e === "string" ? e : "Please try again later";
+                toast(`Network diagnostics failed：${detail}`, "info");
               } finally {
                 setDiagnosing(false);
               }
             }} className="w-full flex items-center gap-3 px-3.5 py-3 text-left pressable disabled:opacity-60">
               <span className="w-8 h-8 rounded-full bg-s3 flex items-center justify-center text-primary"><ILink size={16} /></span>
               <div className="flex-1">
-                <div className="text-[12.5px] text-on">{diagnosing ? "正在诊断…" : "网络诊断"}</div>
-                <div className="text-[10.5px] text-mut">DNS / TCP / 系统代理 / 官网连通性，一键复制带结论的报告</div>
+                <div className="text-[12.5px] text-on">{diagnosing ? "Diagnosing…" : "Network Diagnostics"}</div>
+                <div className="text-[10.5px] text-mut">Check DNS, TCP, proxy and connectivity, then copy the diagnostic report.</div>
               </div>
               <IChevR size={15} className="text-mut" />
             </button>
           </Section>
 
-          <Section title="播放诊断">
+          <Section title="Playback Diagnostics">
             <div className="flex items-center gap-3 px-3.5 py-3">
               <span className="w-8 h-8 rounded-full bg-s3 flex items-center justify-center text-primary"><IInfo size={16} /></span>
               <div className="flex-1 min-w-0">
-                <div className="text-[12.5px] text-on">播放诊断日志</div>
-                <div className="text-[10.5px] text-mut">版本、平台、当前线路和播放失败原因始终记录；开关只额外记录拖动与缓冲细节</div>
+                <div className="text-[12.5px] text-on">Playback diagnostic logging</div>
+                <div className="text-[10.5px] text-mut">Version, platform, server and playback errors are always logged. The toggle also logs seeking and buffering.</div>
                 {playbackLog.error && <div role="alert" className="text-[10.5px] text-danger">{playbackLog.error}</div>}
               </div>
-              <Toggle label="播放诊断日志" on={playbackLog.enabled} disabled={!playbackLog.ready || playbackLog.pending}
-                onChange={(on) => { void setPlaybackLog(on).then(() => toast(on ? "已开启播放诊断，请复现问题" : "已关闭播放诊断，已有日志保留", "ok")).catch(() => toast("日志设置保存失败，请重试", "info")); }} />
+              <Toggle label="Playback diagnostic logging" on={playbackLog.enabled} disabled={!playbackLog.ready || playbackLog.pending}
+                onChange={(on) => { void setPlaybackLog(on).then(() => toast(on ? "Playback diagnostics enabled; reproduce the issue" : "Playback diagnostics disabled; existing logs retained", "ok")).catch(() => toast("日志SettingsUnable to save，请Retry", "info")); }} />
             </div>
             <button disabled={!playbackLog.ready || playbackLog.pending || copyingLog} onClick={async () => {
               setCopyingLog(true);
-              try { await copyPlaybackLog(); toast("播放诊断日志已复制", "ok"); }
-              catch (e) { toast((e as Error).message || "复制日志失败", "info"); }
+              try { await copyPlaybackLog(); toast("Playback diagnostic log copied", "ok"); }
+              catch (e) { toast((e as Error).message || "Copy日志失败", "info"); }
               finally { setCopyingLog(false); }
             }} className="w-full flex items-center gap-3 px-3.5 py-3 text-left pressable disabled:opacity-60">
               <span className="w-8 h-8 rounded-full bg-s3 flex items-center justify-center text-primary"><ILink size={16} /></span>
               <div className="flex-1 min-w-0">
-                <div className="text-[12.5px] text-on">{copyingLog ? "正在复制…" : "复制播放诊断日志"}</div>
-                <div className="text-[10.5px] text-mut break-all">含版本、平台、当前线路、播放失败原因，粘贴即完整{playbackLog.path ? ` · ${playbackLog.path}` : ""}</div>
+                <div className="text-[12.5px] text-on">{copyingLog ? "Copying…" : "Copy Playback Log"}</div>
+                <div className="text-[10.5px] text-mut break-all">Includes version, platform, server and playback errors; paste to share the full log.{playbackLog.path ? ` · ${playbackLog.path}` : ""}</div>
               </div>
               <IChevR size={15} className="text-mut" />
             </button>
           </Section>
 
-          <Section title="其他">
+          <Section title="Other">
             <button onClick={checkUpdate} disabled={checking} className="w-full flex items-center gap-3 px-3.5 py-3 text-left pressable disabled:opacity-60">
               <span className="w-8 h-8 rounded-full bg-s3 flex items-center justify-center text-primary"><IRefresh size={16} /></span>
               <div className="flex-1">
-                <div className="text-[12.5px] text-on">检查更新</div>
-                <div className="text-[10.5px] text-mut">{checking ? "检查中…" : `当前 v${APP_VERSION} · 对比 GitHub Release`}</div>
+                <div className="text-[12.5px] text-on">Check for updates</div>
+                <div className="text-[10.5px] text-mut">{checking ? "Checking…" : `Current v${APP_VERSION} · Compare with GitHub Releases`}</div>
               </div>
               <IChevR size={15} className="text-mut" />
             </button>
             <button onClick={() => setAbout(true)} className="w-full flex items-center gap-3 px-3.5 py-3 text-left pressable">
               <span className="w-8 h-8 rounded-full bg-s3 flex items-center justify-center text-primary"><IInfo size={16} /></span>
               <div className="flex-1">
-                <div className="text-[12.5px] text-on">关于 {APP_NAME}</div>
-                <div className="text-[10.5px] text-mut">版本 {APP_VERSION} · 仅限非商业使用</div>
+                <div className="text-[12.5px] text-on">About {APP_NAME}</div>
+                <div className="text-[10.5px] text-mut">Version {APP_VERSION} · Noncommercial use only</div>
               </div>
               <IChevR size={15} className="text-mut" />
             </button>
           </Section>
 
-          <div className="text-center text-[10px] text-dim mt-5">{APP_NAME} {APP_VERSION} · {platform === "android" ? "Android" : platform === "ios" ? "iOS" : platform === "macos" ? "macOS" : platform === "linux" ? "Linux" : "Windows"} 客户端</div>
+          <div className="text-center text-[10px] text-dim mt-5">{APP_NAME} {APP_VERSION} · {platform === "android" ? "Android" : platform === "ios" ? "iOS" : platform === "macos" ? "macOS" : platform === "linux" ? "Linux" : "Windows"} client</div>
         </div>
       </div>
 
@@ -269,19 +269,19 @@ export default function Settings({ onBack, wide }: { onBack: () => void; wide: b
 
       <Modal open={diagReport !== null} onClose={() => setDiagReport(null)} width={520}>
         <div className="p-5">
-          <h2 className="text-[14.5px] font-bold text-on">网络诊断报告</h2>
-          <p className="text-[12px] text-mut mt-2">诊断已完成，自动复制未成功。可以重试复制，或在下方选择报告文字。</p>
-          <textarea readOnly aria-label="网络诊断报告" value={diagReport ?? ""}
+          <h2 className="text-[14.5px] font-bold text-on">Network Diagnostic Report</h2>
+          <p className="text-[12px] text-mut mt-2">Diagnostics completed but auto-copy failed. Retry or select and copy the report below.</p>
+          <textarea readOnly aria-label="Network Diagnostic Report" value={diagReport ?? ""}
             className="w-full h-64 mt-3 p-3 rounded-(--r-sm) bg-s3 text-[11px] text-on resize-none" />
           <div className="flex gap-2 mt-4">
-            <button onClick={() => setDiagReport(null)} className="flex-1 h-9 rounded-(--r-ctl) bg-s3 text-[12.5px] text-on pressable">关闭</button>
+            <button onClick={() => setDiagReport(null)} className="flex-1 h-9 rounded-(--r-ctl) bg-s3 text-[12.5px] text-on pressable">Close</button>
             <button disabled={copyingReport} onClick={async () => {
               if (diagReport === null) return;
               setCopyingReport(true);
-              try { await copyText(diagReport); toast("网络诊断报告已复制", "ok"); setDiagReport(null); }
-              catch { toast("复制失败，请选择报告文字手动复制", "info"); }
+              try { await copyText(diagReport); toast("Network Diagnostic ReportCopied", "ok"); setDiagReport(null); }
+              catch { toast("Copy failed. Select and copy the report text manually.", "info"); }
               finally { setCopyingReport(false); }
-            }} className="flex-1 h-9 rounded-(--r-ctl) brand-grad text-[12.5px] pressable disabled:opacity-60">{copyingReport ? "正在复制…" : "复制报告"}</button>
+            }} className="flex-1 h-9 rounded-(--r-ctl) brand-grad text-[12.5px] pressable disabled:opacity-60">{copyingReport ? "Copying…" : "Copy Report"}</button>
           </div>
         </div>
       </Modal>
@@ -292,35 +292,35 @@ export default function Settings({ onBack, wide }: { onBack: () => void; wide: b
             <Logo size={44} />
             <div>
               <div className="text-[16px] font-bold text-on leading-tight">{APP_NAME}</div>
-              <div className="text-[11px] text-mut mt-0.5">{APP_NAME} · 第三方客户端 v{APP_VERSION}</div>
+              <div className="text-[11px] text-mut mt-0.5">{APP_NAME} · 第三方client v{APP_VERSION}</div>
             </div>
           </div>
 
           <p className="text-[12px] text-on/70 leading-relaxed mt-4">
-            基于 Rust + Tauri 2 构建的跨平台客户端，支持 Windows、macOS 与 Android。
-            界面遵循 Fluent 设计语言，播放器采用沉浸式竖屏信息流。
+            A cross-platform client built with Rust and Tauri 2 for Windows, macOS and Android.
+            The UI follows Fluent design with an immersive vertical video feed.
           </p>
 
           <div className="mt-4 rounded-(--r-sm) bg-s3/60 p-3 text-[11px] text-mut leading-relaxed">
-            本项目仅供学习与交流，所有内容均来自上游站点，客户端不存储、不分发任何视频内容。
-            请于 24 小时内删除相关资源，并支持正版。
+            This app is for personal learning. Videos are provided by third parties; the client does not host or distribute them.
+            Please respect copyright and support authorized sources.
           </div>
 
           <div className="mt-4 divide-y divide-s3">
-            <button onClick={() => { api.openUrl("https://github.com/zxsos/HGhubX").catch(() => { copyText("https://github.com/zxsos/HGhubX").then(() => toast("仓库地址已复制", "ok")).catch(() => {}); }); }}
+            <button onClick={() => { api.openUrl("https://github.com/zxsos/HGhubX").catch(() => { copyText("https://github.com/zxsos/HGhubX").then(() => toast("仓库地址Copied", "ok")).catch(() => {}); }); }}
               className="w-full flex items-center gap-2 py-2.5 text-left pressable">
               <ILink size={15} className="text-mut" />
               <span className="text-[12px] text-on/85">github.com/zxsos/HGhubX</span>
-              <span className="ml-auto text-[10.5px] text-primary">复制</span>
+              <span className="ml-auto text-[10.5px] text-primary">Copy</span>
             </button>
             <button onClick={() => {
-              if (!lineBase) { toast("尚未配置接入地址", "info"); return; }
-              copyText(lineBase).then(() => toast("接入地址已复制", "ok")).catch(() => {});
+              if (!lineBase) { toast("尚No server address configured", "info"); return; }
+              copyText(lineBase).then(() => toast("Server AddressCopied", "ok")).catch(() => {});
             }}
               className="w-full flex items-center gap-2 py-2.5 text-left pressable">
               <ILink size={15} className="text-mut" />
-              <span className="text-[12px] text-on/85">{lineBase ? hostOf(lineBase) : "未配置接入地址"}</span>
-              <span className="ml-auto text-[10.5px] text-primary">复制</span>
+              <span className="text-[12px] text-on/85">{lineBase ? hostOf(lineBase) : "No server address configured"}</span>
+              <span className="ml-auto text-[10.5px] text-primary">Copy</span>
             </button>
             <div className="flex items-center gap-2 py-2.5">
               <IInfo size={15} className="text-mut" />
@@ -335,9 +335,9 @@ export default function Settings({ onBack, wide }: { onBack: () => void; wide: b
 
       <Modal open={clearOpen} onClose={() => setClearOpen(false)} width={330}>
         <div className="p-5">
-          <div className="text-[14.5px] font-bold text-on">清理缓存</div>
+          <div className="text-[14.5px] font-bold text-on">Clear cache</div>
           <p className="text-[12px] text-mut leading-relaxed mt-2">
-            只清除封面与播放列表缓存（解密图 / m3u8）。收藏、观看记录、搜索历史与登录状态都会保留。
+            只清除封面与Playback列表缓存（解密图 / m3u8）。收藏、观看记录、搜索历史与登录状态都会保留。
           </p>
           <div className="flex gap-2 mt-5">
             <button onClick={() => setClearOpen(false)} className="flex-1 h-9 rounded-(--r-ctl) bg-s3 text-[12.5px] text-on/80 pressable">取消</button>
@@ -356,7 +356,7 @@ export default function Settings({ onBack, wide }: { onBack: () => void; wide: b
 
       <Modal open={!!update?.has_update} onClose={() => setUpdate(null)} width={392}>
         <div className="p-5">
-          <div className="text-[15px] font-bold text-on">发现新版本</div>
+          <div className="text-[15px] font-bold text-on">发现新Version</div>
           <p className="text-[11.5px] text-mut mt-1.5">
             v{update?.current} → <b className="text-on">v{update?.latest}</b>
             {update?.published_at ? ` · ${update.published_at.slice(0, 10)}` : ""}
@@ -366,10 +366,10 @@ export default function Settings({ onBack, wide }: { onBack: () => void; wide: b
           )}
           <div className="flex gap-2 mt-4">
             <button onClick={() => setUpdate(null)} disabled={!!updating}
-              className="flex-1 h-9 rounded-(--r-ctl) bg-s3 text-[12.5px] text-on/80 pressable disabled:opacity-60">稍后</button>
+              className="flex-1 h-9 rounded-(--r-ctl) bg-s3 text-[12.5px] text-on/80 pressable disabled:opacity-60">Later</button>
             <button onClick={() => void doUpdate()} disabled={!!updating}
               className="flex-1 h-9 rounded-(--r-ctl) bg-primary text-[12.5px] font-semibold text-on-primary pressable disabled:opacity-60">
-              {updating || "前往下载"}
+              {updating || "Open download page"}
             </button>
           </div>
           <div className="text-[10px] text-dim mt-2.5 break-all">{update?.url}</div>

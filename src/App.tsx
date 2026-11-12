@@ -31,10 +31,10 @@ function TabBar() {
   const { tab, setTab, theme, platform } = useStore();
   const android = platform === "android";
   const items: { k: Tab; label: string; On: (p: { size?: number; className?: string; style?: React.CSSProperties; strokeWidth?: number }) => React.JSX.Element; Off: (p: { size?: number; className?: string; style?: React.CSSProperties; strokeWidth?: number }) => React.JSX.Element }[] = [
-    { k: "home", label: "首页", On: IHomeF, Off: IHome },
-    { k: "search", label: "搜索", On: ISearch, Off: ISearch },
-    { k: "category", label: "分类", On: IGridF, Off: IGrid },
-    { k: "profile", label: "我的", On: IUserF, Off: IUser },
+    { k: "home", label: "Home", On: IHomeF, Off: IHome },
+    { k: "search", label: "Search", On: ISearch, Off: ISearch },
+    { k: "category", label: "Categories", On: IGridF, Off: IGrid },
+    { k: "profile", label: "My Library", On: IUserF, Off: IUser },
   ];
   const idx = items.findIndex((i) => i.k === tab);
   const overVideo = tab === "home";
@@ -43,7 +43,7 @@ function TabBar() {
   const dropLeft = `${12.5 + idx * 25}%`;
   return (
     <nav className="hg-tabbar absolute inset-x-0 bottom-0 z-30 flex justify-center"
-      style={{ paddingBottom: android ? "var(--sab, 0px)" : "calc(var(--sab, 0px) * 0.55)" }} aria-label="主导航">
+      style={{ paddingBottom: android ? "var(--sab, 0px)" : "calc(var(--sab, 0px) * 0.55)" }} aria-label="Main navigation">
       <div className="hg-glass relative" style={{
         width: "min(92vw, 420px)",
         height: 56,
@@ -158,7 +158,7 @@ function AppBody() {
   const vis = (k: Tab) => (tab === k ? "absolute inset-0" : "absolute inset-0 invisible pointer-events-none");
   const pageActive = stack.length === 0 && !loginOpen;
   const bottomInset = isMobile ? (fs || clean ? 0 : 74) : 14;
-  /* 栈页（从搜索/分类/我的进入的播放页、图文页）没有底栏，
+  /* 栈页（从Search/Categories/My Library进入的播放页、图文页）没有底栏，
      底部只让出安全区。之前多留了 20px，视频底边会露出一条
      「底栏」似的窄缝（底部的压暗渐变到不了屏幕最底）。 */
   const stackInset = isMobile ? 0 : 14;
@@ -275,7 +275,7 @@ export default function App() {
 
   /* iOS：长按快进会触发 WKWebView 系统文本选择放大镜（loupe），纯 CSS 挡不住。
      原生层已默认关闭文本交互（isTextInteractionEnabled=false）；这里在用户触碰输入框时
-     重新打开、失焦时再关闭，避免影响搜索/评论/登录等文本输入。 */
+     重新打开、失焦时再关闭，避免影响Search/评论/登录等文本输入。 */
   useEffect(() => {
     if (platform !== "ios") return;
     const setTI = (enabled: boolean) => setTextInteraction(enabled).catch(() => {});
@@ -299,7 +299,7 @@ export default function App() {
   }, [platform]);
 
   /* —— 安卓硬件返回键 ——
-     层级：全屏 → 面板/弹层 → 登录框 → 页面栈 → 回首页 → 退出应用。
+     层级：全屏 → 面板/弹层 → 登录框 → 页面栈 → 回Home → 退出应用。
      不注册这个监听，Tauri 会直接 webView.goBack() 或退出，表现就是「任意页面返回都回桌面」。 */
   const backRef = useRef<() => void>(() => {});
   backRef.current = () => {
