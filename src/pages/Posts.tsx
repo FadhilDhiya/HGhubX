@@ -9,12 +9,12 @@ import { IBack, IFireF, IPlayF, ISearch } from "../icons";
 import { handleArticleClick, sanitizeHtml } from "../html";
 import { InplaceSearch } from "../components/InplaceSearch";
 
-/* ================= 吃瓜列表 ================= */
+/* ================= Buzz列表 ================= */
 export function PostsPage({ onBack, wide }: { onBack: () => void; wide: boolean }) {
   const { push } = useStore();
   const [searching, setSearching] = useState(false);
   const [cats, setCats] = useState<PostCategory[]>([]);
-  const [cat, setCat] = useState<string>(""); // 空 = 全部
+  const [cat, setCat] = useState<string>(""); // 空 = All
   const [items, setItems] = useState<Post[]>([]);
   const [page, setPage] = useState(0);
   const [pages, setPages] = useState(1);
@@ -69,15 +69,15 @@ export function PostsPage({ onBack, wide }: { onBack: () => void; wide: boolean 
     <div className="absolute inset-0 bg-bg flex flex-col">
       <div className="shrink-0 flex items-center gap-2 px-2 bg-s1" style={{ paddingTop: "var(--sat, 0px)" }}>
         <button onClick={onBack} className="w-9 h-9 rounded-full flex items-center justify-center text-on hover:bg-s3 pressable"><IBack size={19} /></button>
-        <span className="text-[14px] font-bold text-on">吃瓜</span>
-        <span className="text-[10.5px] text-mut ml-1">圈内爆料</span>
-        <button onClick={() => setSearching(true)} aria-label="搜索吃瓜帖" className="ml-auto w-9 h-9 rounded-full flex items-center justify-center text-on hover:bg-s3 pressable"><ISearch size={19} /></button>
+        <span className="text-[14px] font-bold text-on">Buzz</span>
+        <span className="text-[10.5px] text-mut ml-1">Entertainment buzz</span>
+        <button onClick={() => setSearching(true)} aria-label="Search posts" className="ml-auto w-9 h-9 rounded-full flex items-center justify-center text-on hover:bg-s3 pressable"><ISearch size={19} /></button>
       </div>
       {cats.length > 0 && (
         <div className="shrink-0 flex gap-2 px-4 py-2.5 overflow-x-auto no-bar">
           <button onClick={() => pickCat("")}
             className={`shrink-0 px-4 h-8 rounded-(--r-ctl) text-[12px] font-semibold pressable ${cat === "" ? "tonal text-on-sec" : "bg-s3 text-mut"}`}
-            style={cat === "" ? { background: "var(--p-sec)", color: "var(--p-primary)" } : undefined}>全部</button>
+            style={cat === "" ? { background: "var(--p-sec)", color: "var(--p-primary)" } : undefined}>All</button>
           {cats.map((c) => (
             <button key={c.route} onClick={() => pickCat(c.route)}
               className={`shrink-0 px-4 h-8 rounded-(--r-ctl) text-[12px] font-semibold pressable ${cat === c.route ? "tonal text-on-sec" : "bg-s3 text-mut"}`}
@@ -106,7 +106,7 @@ export function PostsPage({ onBack, wide }: { onBack: () => void; wide: boolean 
         ) : loading ? (
           <div className="flex justify-center py-12"><div className="w-8 h-8 spinner" /></div>
         ) : (
-          <Empty icon={<IFireF size={26} />} title="暂无吃瓜内容" sub="稍后再来看看" />
+          <Empty icon={<IFireF size={26} />} title="No posts available" sub="Check back later" />
         )}
         <div ref={sentinel} className="h-10" />
         {loading && <div className="flex justify-center py-2"><div className="w-6 h-6 spinner" /></div>}
@@ -118,13 +118,13 @@ export function PostsPage({ onBack, wide }: { onBack: () => void; wide: boolean 
 
 const isHtml = (s: string) => /<(p|div|br|img|h[1-6]|ul|ol|li|blockquote|span|strong|em)\b/i.test(s);
 
-/* ================= 吃瓜详情（网页式浏览） ================= */
+/* ================= Post details（网页式浏览） ================= */
 export function PostDetail({ id, onBack, active = true }: { id: number; onBack: () => void; active?: boolean }) {
   const { toast, strictSecurity, muted, setMuted } = useStore();
   const [post, setPost] = useState<(Post & { content?: string; video_url?: string }) | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const [play, setPlay] = useState(false);
-  /* 吃瓜帖详情里的 video_url 恒为空，视频地址只在 playback 接口里；
+  /* Buzz帖详情里的 video_url 恒为空，视频地址只在 playback 接口里；
      不解析就整页只有图文（issue #11）。segs 是分段地址，多数帖只有 1 段。 */
   const [segs, setSegs] = useState<string[]>([]);
   const [seg, setSeg] = useState(0);
@@ -134,7 +134,7 @@ export function PostDetail({ id, onBack, active = true }: { id: number; onBack: 
   const safeHtml = useMemo(() => sanitizeHtml(content), [content, strictSecurity]);
   const openSafeLink = (url: string) => {
     api.openUrl(url).catch(() => {
-      copyText(url).then(() => toast("链接已复制", "ok")).catch(() => toast("复制失败", "info"));
+      copyText(url).then(() => toast("Link copied", "ok")).catch(() => toast("Copy failed", "info"));
     });
   };
 
@@ -150,7 +150,7 @@ export function PostDetail({ id, onBack, active = true }: { id: number; onBack: 
         /* 老字段有值就直接用，省一次请求 */
         if (p.video_url) { setSegs([p.video_url]); setPlay(true); }
       })
-      .catch((e) => { if (alive) setErr((e as Error).message || "加载失败"); });
+      .catch((e) => { if (alive) setErr((e as Error).message || "Failed to load"); });
     setResolving(true);
     api.postPlayback(id)
       .then((r) => {
@@ -167,12 +167,12 @@ export function PostDetail({ id, onBack, active = true }: { id: number; onBack: 
     <div className="absolute inset-0 bg-bg flex flex-col">
       <div className="shrink-0 flex items-center gap-2 px-2 bg-s1" style={{ paddingTop: isMobile ? "var(--sat, 0px)" : 0, height: isMobile ? "calc(44px + var(--sat, 0px))" : 44 }}>
         <button onClick={onBack} className="w-9 h-9 rounded-full flex items-center justify-center text-on hover:bg-s3 pressable"><IBack size={19} /></button>
-        <span className="text-[13.5px] font-semibold text-on">吃瓜详情</span>
+        <span className="text-[13.5px] font-semibold text-on">Post details</span>
       </div>
 
       <div className="flex-1 scroll-y pb-8">
         {err ? (
-          <Empty icon={<IFireF size={26} />} title="加载失败" sub={err} />
+          <Empty icon={<IFireF size={26} />} title="Failed to load" sub={err} />
         ) : !post ? (
           <div className="flex justify-center py-12"><div className="w-8 h-8 spinner" /></div>
         ) : (
@@ -182,11 +182,11 @@ export function PostDetail({ id, onBack, active = true }: { id: number; onBack: 
                 <Player src={src} poster={cover(post.cover)} autoPlay active={active} controls muted={muted}
                   onToggleMute={() => setMuted((m) => !m)} diagnosticContext={{ video_id: id, active }} className="w-full h-full"
                   onEnded={() => {
-                    /* 多段吃瓜视频：播完自动接下一段 */
+                    /* 多段Buzz视频：播完自动接下一段 */
                     if (seg < segs.length - 1) setSeg(seg + 1); else setPlay(false);
                   }} />
               ) : (
-                <button onClick={() => { if (src) setPlay(true); else if (!resolving) toast("该帖子没有视频", "info"); }} className="absolute inset-0">
+                <button onClick={() => { if (src) setPlay(true); else if (!resolving) toast("This post has no video", "info"); }} className="absolute inset-0">
                   <Img src={post.cover} eager />
                   {src && (
                     <span className="absolute inset-0 flex items-center justify-center">

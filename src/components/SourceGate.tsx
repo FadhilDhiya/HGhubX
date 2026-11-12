@@ -34,9 +34,9 @@ export default function SourceGate() {
           </div>
         </div>
 
-        <div className="text-[17px] font-semibold">接入地址</div>
+        <div className="text-[17px] font-semibold">Server Address</div>
         <div className="text-[12px] text-mut mt-1.5 leading-relaxed">
-          输入地址后即可开始使用。地址只保存在本机，可随时在设置中更换。
+          Enter a server address to get started. It is saved only on this device and can be changed in Settings.
         </div>
 
         <form onSubmit={submit} className="mt-5">
@@ -47,8 +47,8 @@ export default function SourceGate() {
               value={value}
               onChange={(e) => setValue(e.target.value)}
               onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); void submit(); } }}
-              placeholder="粘贴或输入地址"
-              aria-label="接入地址"
+              placeholder="Paste or enter server address"
+              aria-label="Server Address"
               autoCapitalize="none"
               autoCorrect="off"
               spellCheck={false}
@@ -61,12 +61,12 @@ export default function SourceGate() {
             disabled={gateBusy || !value.trim()}
             className="mt-4 w-full h-11 rounded-(--r-md) bg-primary text-on-primary text-[14px] font-semibold pressable disabled:opacity-50 disabled:cursor-wait"
           >
-            {gateBusy ? "连接中…" : "进入"}
+            {gateBusy ? "Connecting…" : "Continue"}
           </button>
         </form>
 
         <div className="text-[10.5px] text-dim mt-6 leading-relaxed">
-          不校验地址格式，也不探测服务器；输入什么就连接什么。
+          The address is not validated or tested. The app will use exactly what you enter.
         </div>
       </div>
     </div>

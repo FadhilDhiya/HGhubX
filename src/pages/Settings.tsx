@@ -57,7 +57,7 @@ export default function Settings({ onBack, wide }: { onBack: () => void; wide: b
     } catch (e) {
       await copyText(update.url)
         .then(() => toast("Download link copied; paste it into a browser", "ok"))
-        .catch(() => toast((e as Error).message || "打开失败", "info"));
+        .catch(() => toast((e as Error).message || "Could not open link", "info"));
     } finally {
       setUpdating("");
     }
@@ -225,12 +225,12 @@ export default function Settings({ onBack, wide }: { onBack: () => void; wide: b
                 {playbackLog.error && <div role="alert" className="text-[10.5px] text-danger">{playbackLog.error}</div>}
               </div>
               <Toggle label="Playback diagnostic logging" on={playbackLog.enabled} disabled={!playbackLog.ready || playbackLog.pending}
-                onChange={(on) => { void setPlaybackLog(on).then(() => toast(on ? "Playback diagnostics enabled; reproduce the issue" : "Playback diagnostics disabled; existing logs retained", "ok")).catch(() => toast("日志SettingsUnable to save，请Retry", "info")); }} />
+                onChange={(on) => { void setPlaybackLog(on).then(() => toast(on ? "Playback diagnostics enabled; reproduce the issue" : "Playback diagnostics disabled; existing logs retained", "ok")).catch(() => toast("Unable to save playback log settings. Please retry.", "info")); }} />
             </div>
             <button disabled={!playbackLog.ready || playbackLog.pending || copyingLog} onClick={async () => {
               setCopyingLog(true);
               try { await copyPlaybackLog(); toast("Playback diagnostic log copied", "ok"); }
-              catch (e) { toast((e as Error).message || "Copy日志失败", "info"); }
+              catch (e) { toast((e as Error).message || "Could not copy the playback log", "info"); }
               finally { setCopyingLog(false); }
             }} className="w-full flex items-center gap-3 px-3.5 py-3 text-left pressable disabled:opacity-60">
               <span className="w-8 h-8 rounded-full bg-s3 flex items-center justify-center text-primary"><ILink size={16} /></span>
@@ -292,7 +292,7 @@ export default function Settings({ onBack, wide }: { onBack: () => void; wide: b
             <Logo size={44} />
             <div>
               <div className="text-[16px] font-bold text-on leading-tight">{APP_NAME}</div>
-              <div className="text-[11px] text-mut mt-0.5">{APP_NAME} · 第三方client v{APP_VERSION}</div>
+              <div className="text-[11px] text-mut mt-0.5">{APP_NAME} · Third-party client v{APP_VERSION}</div>
             </div>
           </div>
 
@@ -307,14 +307,14 @@ export default function Settings({ onBack, wide }: { onBack: () => void; wide: b
           </div>
 
           <div className="mt-4 divide-y divide-s3">
-            <button onClick={() => { api.openUrl("https://github.com/zxsos/HGhubX").catch(() => { copyText("https://github.com/zxsos/HGhubX").then(() => toast("仓库地址Copied", "ok")).catch(() => {}); }); }}
+            <button onClick={() => { api.openUrl("https://github.com/zxsos/HGhubX").catch(() => { copyText("https://github.com/zxsos/HGhubX").then(() => toast("Repository link copied", "ok")).catch(() => {}); }); }}
               className="w-full flex items-center gap-2 py-2.5 text-left pressable">
               <ILink size={15} className="text-mut" />
               <span className="text-[12px] text-on/85">github.com/zxsos/HGhubX</span>
               <span className="ml-auto text-[10.5px] text-primary">Copy</span>
             </button>
             <button onClick={() => {
-              if (!lineBase) { toast("尚No server address configured", "info"); return; }
+              if (!lineBase) { toast("No server address configured", "info"); return; }
               copyText(lineBase).then(() => toast("Server AddressCopied", "ok")).catch(() => {});
             }}
               className="w-full flex items-center gap-2 py-2.5 text-left pressable">
@@ -325,11 +325,11 @@ export default function Settings({ onBack, wide }: { onBack: () => void; wide: b
             <div className="flex items-center gap-2 py-2.5">
               <IInfo size={15} className="text-mut" />
               <span className="text-[12px] text-on/85">PolyForm Noncommercial 1.0.0</span>
-              <span className="ml-auto text-[10.5px] text-mut">仅限非商业</span>
+              <span className="ml-auto text-[10.5px] text-mut">Noncommercial only</span>
             </div>
           </div>
 
-          <button onClick={() => setAbout(false)} className="mt-4 w-full h-9 rounded-(--r-ctl) bg-s3 text-[12.5px] text-on pressable">知道了</button>
+          <button onClick={() => setAbout(false)} className="mt-4 w-full h-9 rounded-(--r-ctl) bg-s3 text-[12.5px] text-on pressable">Got it</button>
         </div>
       </Modal>
 
@@ -337,18 +337,18 @@ export default function Settings({ onBack, wide }: { onBack: () => void; wide: b
         <div className="p-5">
           <div className="text-[14.5px] font-bold text-on">Clear cache</div>
           <p className="text-[12px] text-mut leading-relaxed mt-2">
-            只清除封面与Playback列表缓存（解密图 / m3u8）。收藏、观看记录、搜索历史与登录状态都会保留。
+            Only cover art and playback caches (images / m3u8) will be cleared. Favorites, watch history, search history and sign-in remain intact.
           </p>
           <div className="flex gap-2 mt-5">
-            <button onClick={() => setClearOpen(false)} className="flex-1 h-9 rounded-(--r-ctl) bg-s3 text-[12.5px] text-on/80 pressable">取消</button>
+            <button onClick={() => setClearOpen(false)} className="flex-1 h-9 rounded-(--r-ctl) bg-s3 text-[12.5px] text-on/80 pressable">Cancel</button>
             <button disabled={clearing} onClick={async () => {
               setClearing(true);
               try { await api.clearCache(); } catch { /* 忽略 */ }
               setClearing(false);
               setClearOpen(false);
-              toast("缓存已清理", "ok");
+              toast("Cache cleared", "ok");
             }} className="flex-1 h-9 rounded-(--r-ctl) bg-primary text-[12.5px] font-semibold text-on-primary pressable disabled:opacity-60">
-              {clearing ? "清理中…" : "确定清理"}
+              {clearing ? "Clearing…" : "Clear cache"}
             </button>
           </div>
         </div>
@@ -356,7 +356,7 @@ export default function Settings({ onBack, wide }: { onBack: () => void; wide: b
 
       <Modal open={!!update?.has_update} onClose={() => setUpdate(null)} width={392}>
         <div className="p-5">
-          <div className="text-[15px] font-bold text-on">发现新Version</div>
+          <div className="text-[15px] font-bold text-on">New version available</div>
           <p className="text-[11.5px] text-mut mt-1.5">
             v{update?.current} → <b className="text-on">v{update?.latest}</b>
             {update?.published_at ? ` · ${update.published_at.slice(0, 10)}` : ""}

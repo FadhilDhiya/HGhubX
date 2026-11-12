@@ -56,7 +56,7 @@ export function InplaceSearch({ kind, onOpenVideo, onOpenPost, onClose, wide }: 
       setErr(null);
     } catch (e) {
       if (seq !== seqRef.current) return;
-      setErr((e as Error).message || "搜索失败");
+      setErr((e as Error).message || "Search failed");
     } finally {
       if (seq === seqRef.current) {
         busy.current = false;
@@ -81,11 +81,11 @@ export function InplaceSearch({ kind, onOpenVideo, onOpenPost, onClose, wide }: 
   return (
     <div className="absolute inset-0 z-20 bg-bg flex flex-col">
       <div className="shrink-0 px-4 pb-3 flex items-center gap-2.5 bg-s1" style={{ paddingTop: "calc(var(--sat, 0px) + 12px)" }}>
-        <button onClick={onClose} className="w-9 h-9 rounded-full flex items-center justify-center text-on hover:bg-s3 pressable" aria-label="退出搜索"><IBack size={19} /></button>
+        <button onClick={onClose} className="w-9 h-9 rounded-full flex items-center justify-center text-on hover:bg-s3 pressable" aria-label="Close search"><IBack size={19} /></button>
         <form className="flex-1 flex items-center gap-2 h-11 rounded-(--r-ctl) bg-s3 px-3.5 focus-within:bg-s4 transition-colors"
           onSubmit={(e) => { e.preventDefault(); submit(q); }}>
           <ISearch size={17} className="text-mut shrink-0" />
-          <input autoFocus value={q} onChange={(e) => setQ(e.target.value)} placeholder={kind === "post" ? "搜索吃瓜帖…" : "搜索短剧…"}
+          <input autoFocus value={q} onChange={(e) => setQ(e.target.value)} placeholder={kind === "post" ? "Search posts…" : "Search dramas…"}
             className="flex-1 min-w-0 bg-transparent text-[13.5px] text-on placeholder-dim outline-none" />
           {q && <button type="button" onClick={() => { seqRef.current++; busy.current = false; setLoading(false); setQ(""); setSubmitted(""); setItems([]); setPosts([]); }} className="w-5 h-5 rounded-full bg-s4 flex items-center justify-center text-mut pressable"><IClose size={11} /></button>}
         </form>
@@ -93,13 +93,13 @@ export function InplaceSearch({ kind, onOpenVideo, onOpenPost, onClose, wide }: 
 
       <div className="flex-1 scroll-y px-4 pt-3 pb-8">
         {!submitted ? (
-          <div className="flex justify-center py-20"><span className="text-[12px] text-mut">{kind === "post" ? "输入关键词，在本栏目内搜索吃瓜帖" : "输入关键词，在本栏目内搜索短剧"}</span></div>
+          <div className="flex justify-center py-20"><span className="text-[12px] text-mut">{kind === "post" ? "Enter keywords to search posts in this category" : "Enter keywords to search dramas in this category"}</span></div>
         ) : loading && !count ? (
           <div className="flex justify-center py-12"><div className="w-8 h-8 spinner" /></div>
         ) : count ? (
           kind === "post" ? (
             <>
-              <div className="text-[11.5px] text-mut mb-2.5">「{submitted}」共 <span className="text-primary font-bold">{count}</span> 条吃瓜帖</div>
+              <div className="text-[11.5px] text-mut mb-2.5">Results for “{submitted}”:  <span className="text-primary font-bold">{count}</span>  posts</div>
               <div className={`${wide ? "columns-3 xl:columns-4" : "columns-2"} gap-2`}>
                 {posts.map((post) => (
                   <button key={post.id} onClick={() => onOpenPost?.(post)}
@@ -114,20 +114,20 @@ export function InplaceSearch({ kind, onOpenVideo, onOpenPost, onClose, wide }: 
                 ))}
               </div>
               <div className="flex justify-center py-4">
-                {loading ? <div className="w-6 h-6 spinner" /> : page < pages ? <button onClick={() => run(submitted, page + 1)} className="px-5 h-9 rounded-(--r-ctl) bg-s3 text-[12px] text-on/85 pressable">加载更多</button> : <span className="text-[10.5px] text-dim">— 已经到底啦 —</span>}
+                {loading ? <div className="w-6 h-6 spinner" /> : page < pages ? <button onClick={() => run(submitted, page + 1)} className="px-5 h-9 rounded-(--r-ctl) bg-s3 text-[12px] text-on/85 pressable">Load more</button> : <span className="text-[10.5px] text-dim">— 已经到底啦 —</span>}
               </div>
             </>
           ) : (
             <>
-              <div className="text-[11.5px] text-mut mb-2.5">「{submitted}」共 <span className="text-primary font-bold">{count}</span> 条短剧</div>
+              <div className="text-[11.5px] text-mut mb-2.5">Results for “{submitted}”:  <span className="text-primary font-bold">{count}</span>  dramas</div>
               <Masonry videos={items} wide={wide} onOpen={(v) => onOpenVideo?.(v, items)} />
               <div className="flex justify-center py-4">
-                {loading ? <div className="w-6 h-6 spinner" /> : page < pages ? <button onClick={() => run(submitted, page + 1)} className="px-5 h-9 rounded-(--r-ctl) bg-s3 text-[12px] text-on/85 pressable">加载更多</button> : <span className="text-[10.5px] text-dim">— 已经到底啦 —</span>}
+                {loading ? <div className="w-6 h-6 spinner" /> : page < pages ? <button onClick={() => run(submitted, page + 1)} className="px-5 h-9 rounded-(--r-ctl) bg-s3 text-[12px] text-on/85 pressable">Load more</button> : <span className="text-[10.5px] text-dim">— 已经到底啦 —</span>}
               </div>
             </>
           )
         ) : (
-          <Empty icon={<ISearch size={26} />} title={err || "没有找到相关内容"} sub="换个关键词试试" />
+          <Empty icon={<ISearch size={26} />} title={err || "No matching results"} sub="Try another keyword" />
         )}
       </div>
     </div>

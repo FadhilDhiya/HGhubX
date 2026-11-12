@@ -8,13 +8,13 @@ import { Empty, Img } from "../components/ui";
 import { IBack, IChevR, IGlobe, IGrid, ISearch, ITrophy } from "../icons";
 
 export const CHANNELS = [
-  { cate: "ai-duanju", name: "AI成人短剧", desc: "高能反转 · 一口气看完" },
-  { cate: "ai-manju", name: "AI成人漫剧", desc: "国创漫剧 · 每周更新" },
-  { cate: "ai-huanlian", name: "AI换脸", desc: "换脸演绎 · 全新剧情" },
-  { cate: "ai-mogai", name: "AI魔改", desc: "魔改名场面 · 脑洞大开" },
+  { cate: "ai-duanju", name: "AI Dramas (Mature)", desc: "Plot twists · Binge-worthy" },
+  { cate: "ai-manju", name: "AI Animation (Mature)", desc: "Chinese animation · Updated weekly" },
+  { cate: "ai-huanlian", name: "AI Face Swap", desc: "AI face-swap stories · New plots" },
+  { cate: "ai-mogai", name: "AI Reimagined", desc: "Reimagined scenes · Creative twists" },
 ] as const;
 
-/* ================= 分类总览 ================= */
+/* ================= Categories总览 ================= */
 export default function Category({ wide, active }: { wide: boolean; active: boolean }) {
   const { push, lineEpoch } = useStore();
   const [rows, setRows] = useState<Record<string, VideoCard[]>>({});
@@ -51,7 +51,7 @@ export default function Category({ wide, active }: { wide: boolean; active: bool
       }
     } catch (error) {
       const stale = requestEpoch !== lineEpochRef.current;
-      if (mounted.current && !stale) setErrors(m => ({ ...m, [key]: (error as Error).message || "加载失败" }));
+      if (mounted.current && !stale) setErrors(m => ({ ...m, [key]: (error as Error).message || "Failed to load" }));
       /* 请求在旧线路上发出、期间线路已切换：等 finally 里用新线路补拉一次 */
       if (stale) retryKeys.current.add(key);
     } finally {
@@ -63,14 +63,14 @@ export default function Category({ wide, active }: { wide: boolean; active: bool
   }, []);
 
   useEffect(() => {
-    // 首次打开分类才加载，避免启动时后台频道请求/封面与首页视频竞争网络。
+    // 首次打开Categories才加载，避免启动时后台频道请求/封面与首页视频竞争网络。
     if (!active || started.current) return;
     started.current = true;
     CHANNELS.forEach(c => { void loadPreview(c.cate); });
     void loadPreview("posts");
   }, [active, loadPreview]);
 
-  /* 线路切换后：已打开过的分类里，加载失败的栏目在新线路上重试一次 */
+  /* 线路切换后：已打开过的Categories里，Failed to load的栏目在新线路上Retry一次 */
   useEffect(() => {
     if (!lineEpoch || !started.current) return;
     Object.entries(errorsRef.current).forEach(([key, msg]) => { if (msg) void loadPreview(key); });
@@ -80,31 +80,31 @@ export default function Category({ wide, active }: { wide: boolean; active: bool
     <div className="absolute inset-0 bg-bg flex flex-col">
       <div className="shrink-0 px-4 pb-1" style={{ paddingTop: "calc(var(--sat, 0px) + 14px)" }}>
         <div className="flex items-end gap-2.5">
-          <span className="text-[24px] font-bold text-on leading-none">分类</span>
-          <span className="text-[11px] text-mut pb-0.5">{CHANNELS.length + 1} 个频道 · 每周持续上新</span>
+          <span className="text-[24px] font-bold text-on leading-none">Categories</span>
+          <span className="text-[11px] text-mut pb-0.5">{CHANNELS.length + 1}  channels · Updated weekly</span>
         </div>
       </div>
 
       <div className="flex-1 scroll-y pb-24 pt-2">
-        {/* 排行榜入口 */}
+        {/* Top Charts入口 */}
         <button onClick={() => push({ kind: "ranks" })}
           className="mx-4 mb-2.5 w-[calc(100%-2rem)] flex items-center gap-3 rounded-(--r-md) bg-s2 p-3.5 text-left pressable elev-1">
           <span className="w-10 h-10 rounded-(--r-sm) bg-pc text-on-pc flex items-center justify-center shrink-0"><ITrophy size={20} /></span>
           <span className="flex-1">
-            <span className="block text-[14.5px] font-semibold text-on">排行榜</span>
-            <span className="block text-[10.5px] text-mut mt-0.5">热播榜 · 推荐榜 · 潜力榜</span>
+            <span className="block text-[14.5px] font-semibold text-on">Top Charts</span>
+            <span className="block text-[10.5px] text-mut mt-0.5">Trending · Recommended · Rising</span>
           </span>
           <IChevR size={16} className="text-mut" />
         </button>
 
-        {/* 专题 + 标签入口 */}
+        {/* Collections + Tags入口 */}
         <div className="mx-4 mb-5 grid grid-cols-2 gap-2.5">
           <button onClick={() => push({ kind: "topics" })}
             className="flex items-center gap-2.5 rounded-(--r-md) bg-s2 p-3 text-left pressable elev-1">
             <span className="w-9 h-9 rounded-(--r-sm) bg-pc text-on-pc flex items-center justify-center shrink-0"><IGrid size={18} /></span>
             <span className="flex-1">
-              <span className="block text-[13.5px] font-semibold text-on">专题</span>
-              <span className="block text-[10px] text-mut mt-0.5">精选专辑合集</span>
+              <span className="block text-[13.5px] font-semibold text-on">Collections</span>
+              <span className="block text-[10px] text-mut mt-0.5">Curated collections</span>
             </span>
             <IChevR size={14} className="text-mut" />
           </button>
@@ -112,8 +112,8 @@ export default function Category({ wide, active }: { wide: boolean; active: bool
             className="flex items-center gap-2.5 rounded-(--r-md) bg-s2 p-3 text-left pressable elev-1">
             <span className="w-9 h-9 rounded-(--r-sm) bg-pc text-on-pc flex items-center justify-center shrink-0"><IGlobe size={18} /></span>
             <span className="flex-1">
-              <span className="block text-[13.5px] font-semibold text-on">标签</span>
-              <span className="block text-[10px] text-mut mt-0.5">按题材找片</span>
+              <span className="block text-[13.5px] font-semibold text-on">Tags</span>
+              <span className="block text-[10px] text-mut mt-0.5">Browse by genre</span>
             </span>
             <IChevR size={14} className="text-mut" />
           </button>
@@ -133,7 +133,7 @@ export default function Category({ wide, active }: { wide: boolean; active: bool
                   <span className="block text-[10.5px] text-mut mt-0.5 truncate">{c.desc}</span>
                 </span>
                 <span className="flex items-center gap-0.5 text-[11.5px] text-mut group-hover:text-primary transition-colors">
-                  全部<IChevR size={14} />
+                  View all<IChevR size={14} />
                 </span>
               </button>
               <div className="scroll-x flex gap-2.5 px-4 snap-x">
@@ -146,19 +146,19 @@ export default function Category({ wide, active }: { wide: boolean; active: bool
           );
         })}
 
-        {/* 吃瓜 */}
-        <section aria-label="吃瓜" className="mb-5 a-rise">
+        {/* Buzz */}
+        <section aria-label="Buzz" className="mb-5 a-rise">
           <button onClick={() => push({ kind: "posts" })}
             className="w-full flex items-center gap-2.5 px-4 mb-2.5 text-left pressable group">
             <span className="w-[36px] h-[36px] rounded-(--r-sm) tonal flex items-center justify-center shrink-0 text-primary">
               <IGrid size={19} strokeWidth={1.9} />
             </span>
             <span className="flex-1 min-w-0">
-              <span className="block text-[15.5px] font-semibold text-on leading-tight">吃瓜</span>
-              <span className="block text-[10.5px] text-mut mt-0.5 truncate">圈内爆料 · 每日更新</span>
+              <span className="block text-[15.5px] font-semibold text-on leading-tight">Buzz</span>
+              <span className="block text-[10.5px] text-mut mt-0.5 truncate">Entertainment stories · Daily updates</span>
             </span>
             <span className="flex items-center gap-0.5 text-[11.5px] text-mut group-hover:text-primary transition-colors">
-              全部<IChevR size={14} />
+              View all<IChevR size={14} />
             </span>
           </button>
           <div className="scroll-x flex gap-2.5 px-4 snap-x">
@@ -173,11 +173,11 @@ export default function Category({ wide, active }: { wide: boolean; active: bool
                 <div className="mt-1.5 text-[11.5px] font-medium text-on clamp-1 leading-tight">{post.title}</div>
               </button>
             ))}
-            {!posts.length && <PreviewStatus name="吃瓜" loading={loading.posts !== false} error={errors.posts} onRetry={() => void loadPreview("posts")} />}
+            {!posts.length && <PreviewStatus name="Buzz" loading={loading.posts !== false} error={errors.posts} onRetry={() => void loadPreview("posts")} />}
           </div>
         </section>
 
-        <div className="px-4 text-center text-[10.5px] text-dim pt-1">— 已展示全部频道 —</div>
+        <div className="px-4 text-center text-[10.5px] text-dim pt-1">— All channels displayed —</div>
       </div>
       {wide && <div />}
     </div>
@@ -186,8 +186,8 @@ export default function Category({ wide, active }: { wide: boolean; active: bool
 
 function PreviewStatus({ name, loading, error, onRetry }: { name: string; loading: boolean; error?: string; onRetry: () => void }) {
   return <div className="h-[150px] flex flex-col justify-center items-start gap-2 text-[11.5px] text-dim px-1">
-    <span>{loading ? "加载中…" : error || "暂无内容"}</span>
-    {!loading && error && <button aria-label={`重试${name}`} onClick={onRetry} className="text-primary pressable">重试</button>}
+    <span>{loading ? "Loading…" : error || "No content available"}</span>
+    {!loading && error && <button aria-label={`Retry${name}`} onClick={onRetry} className="text-primary pressable">Retry</button>}
   </div>;
 }
 
@@ -195,7 +195,7 @@ function PreviewStatus({ name, loading, error, onRetry }: { name: string; loadin
 export function ChannelPage({ cate, name, onBack, wide }: { cate: string; name: string; onBack: () => void; wide: boolean }) {
   const { push } = useStore();
   const [searching, setSearching] = useState(false);
-  const [sort, setSort] = useState<"最新" | "最热" | "高分">("最新");
+  const [sort, setSort] = useState<"Newest" | "Hottest" | "Top rated">("Newest");
   const [pageItems, setPageItems] = useState<VideoCard[][]>([]);
   const items = pageItems.flat();
   const [page, setPage] = useState(0);
@@ -220,7 +220,7 @@ export function ChannelPage({ cate, name, onBack, wide }: { cate: string; name: 
       setPages(res?.pagination?.pages || next);
       setErr(null);
     } catch (e) {
-      setErr((e as Error).message || "加载失败");
+      setErr((e as Error).message || "Failed to load");
     } finally {
       busy.current = false;
       setLoading(false);
@@ -240,8 +240,8 @@ export function ChannelPage({ cate, name, onBack, wide }: { cate: string; name: 
   // 每个服务端分页内部排序，分页之间保持追加顺序：
   // 翻页时新一页不会因为 id/hot/score 更高而插到已看内容上方，避免“加载更多像刷新”。
   const sorted = pageItems.flatMap((list) => [...list].sort((a, b) => {
-    if (sort === "最热") return (b.hot || 0) - (a.hot || 0);
-    if (sort === "高分") return (b.score || 0) - (a.score || 0);
+    if (sort === "Hottest") return (b.hot || 0) - (a.hot || 0);
+    if (sort === "Top rated") return (b.score || 0) - (a.score || 0);
     return b.id - a.id;
   }));
 
@@ -253,12 +253,12 @@ export function ChannelPage({ cate, name, onBack, wide }: { cate: string; name: 
           <span className="w-[40px] h-[40px] rounded-(--r-sm) bg-pc text-on-pc flex items-center justify-center"><IGrid size={21} strokeWidth={1.9} /></span>
           <div className="flex-1 min-w-0">
             <div className="text-[17px] font-bold text-on leading-tight">{name}</div>
-            <div className="text-[10.5px] text-mut">共 {items.length} 部 · 已加载 {page}/{Math.max(pages, 1)} 页</div>
+            <div className="text-[10.5px] text-mut">Total: {items.length}  dramas · Loaded {page}/{Math.max(pages, 1)} 页</div>
           </div>
-          <button onClick={() => setSearching(true)} aria-label="搜索短剧" className="w-9 h-9 shrink-0 rounded-full flex items-center justify-center text-on hover:bg-s3 pressable"><ISearch size={19} /></button>
+          <button onClick={() => setSearching(true)} aria-label="Search dramas" className="w-9 h-9 shrink-0 rounded-full flex items-center justify-center text-on hover:bg-s3 pressable"><ISearch size={19} /></button>
         </div>
         <div className="px-4 pb-3 flex gap-2">
-          {(["最新", "最热", "高分"] as const).map((s) => (
+          {(["Newest", "Hottest", "Top rated"] as const).map((s) => (
             <button key={s} onClick={() => setSort(s)}
               className={`px-4 h-8 rounded-(--r-ctl) text-[12px] font-semibold pressable ${sort === s ? "tonal text-on-sec" : "bg-s3 text-mut"}`}
               style={sort === s ? { background: "var(--p-sec)", color: "var(--p-primary)" } : undefined}>{s}</button>
@@ -269,14 +269,14 @@ export function ChannelPage({ cate, name, onBack, wide }: { cate: string; name: 
         {sorted.length ? (
           <Masonry videos={sorted} wide={wide} onOpen={(v) => push({ kind: "feed", videoIds: sorted.map((x) => x.id), index: sorted.findIndex((x) => x.id === v.id), title: name })} />
         ) : err ? (
-          <Empty icon={<IGrid size={26} />} title="加载失败" sub={err} action="重试" onAction={loadMore} />
+          <Empty icon={<IGrid size={26} />} title="Failed to load" sub={err} action="Retry" onAction={loadMore} />
         ) : (
           <div className="flex justify-center py-10"><div className="w-8 h-8 spinner" /></div>
         )}
         <div ref={sentinel} className="h-10" />
         {loading && <div className="flex justify-center py-3"><div className="w-6 h-6 spinner" /></div>}
         {!loading && page >= pages && sorted.length > 0 && (
-          <div className="text-center text-[10.5px] text-dim py-3">— 已经到底啦 —</div>
+          <div className="text-center text-[10.5px] text-dim py-3">— You have reached the end —</div>
         )}
       </div>
       {searching && <InplaceSearch kind="video" wide={wide} onClose={() => setSearching(false)} onOpenVideo={(v, list) => push({ kind: "feed", videoIds: list.map((x) => x.id), index: list.findIndex((x) => x.id === v.id), title: `搜索 · ${name}` })} />}
