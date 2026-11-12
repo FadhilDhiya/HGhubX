@@ -246,19 +246,29 @@ async fn client_for(raw: &str) -> Result<(url::Url, Arc<reqwest::Client>), Strin
     client_for_dns(raw, false).await
 }
 
+/// 是否处于「有代理」状态：显式代理（`HGHUB_PROXY` / GNOME gsettings）或进程环境变量。
+/// 有代理时域名交给代理解析，本地不再做 DNS 固定与 IP 校验（被污染的 DNS 不影响代理链路）。
+fn proxy_active() -> bool {
+    detected_proxy().is_some() || env_proxy_set()
+}
+
 async fn client_for_dns(raw: &str, public_dns: bool) -> Result<(url::Url, Arc<reqwest::Client>), String> {
     let strict = network_policy::strict_security();
     let target = network_policy::parse_target_with_mode(raw, strict)?;
     let host = target.host_str().ok_or("目标缺少主机名")?;
     let port = target.port_or_known_default().ok_or("目标端口无效")?;
-    let key = format!("{strict}:{host}:{port}:{public_dns}");
+    let proxy = proxy_active();
+    let key = format!("{strict}:{host}:{port}:{public_dns}:{proxy}");
     {
         let cache = CLIENTS.lock().map_err(|_| "HTTP 客户端锁失败")?;
         if let Some(http) = cached_client(&cache, &key, Instant::now()) {
             return Ok((target, http));
         }
     }
-    let (addrs, ttl) = if public_dns {
+    let (addrs, ttl) = if proxy {
+        // 有代理：跳过本地解析与 IP 校验，addrs 留空，域名交给代理。
+        (Vec::new(), CLIENT_TTL)
+    } else if public_dns {
         let resolver = build_client(crate::media_dns::HOST, &crate::media_dns::BOOTSTRAP)?;
         let resolution = crate::media_dns::resolve(&resolver, host, port).await?;
         network_policy::check_addresses_with_mode(&resolution.addresses, strict)?;
